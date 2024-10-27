@@ -1,0 +1,22 @@
+[
+    {
+        "user_id": 1,
+        "title": "Post # 1",
+        "text": "There are some information about post 1",
+        "created_at": "2024-01-01",
+        "autoresponder_enabled": false,
+        "autoresponder_delay": 0,
+        "is_blocked": false,
+        "is_checked": false
+    },
+    {
+        "user_id": 2,
+        "title": "Post # 2",
+        "text": "There are some information about post 2",
+        "created_at": "2024-02-01",
+        "autoresponder_enabled": false,
+        "autoresponder_delay": 0,
+        "is_blocked": false,
+        "is_checked": false
+    }
+]

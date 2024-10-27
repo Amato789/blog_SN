@@ -1,0 +1,57 @@
+services:
+  db:
+    image: postgres:15
+    container_name: blog_db
+    env_file:
+      - ./.env
+    ports:
+      - "5434:5432"
+    volumes:
+      - blog_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:latest
+    container_name: blog_redis
+
+  blog:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: blog_app
+    ports:
+      - "8000:8000"
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
+    env_file:
+      - ./.env
+    volumes:
+      - .:/app/
+    depends_on:
+      - db
+      - redis
+
+  celery:
+    build:
+      context: .
+    container_name: blog_celery
+    command: sh -c "celery --app=app.tasks.celery_setup:celery worker -l INFO"
+    env_file:
+      - ./.env
+    volumes:
+      - .:/app/
+    depends_on:
+      - redis
+
+  flower:
+    build:
+      context: .
+    container_name: blog_flower
+    command: sh -c "celery --app=app.tasks.celery_setup:celery flower"
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
+    ports:
+      - 5555:5555
+
+volumes:
+  blog_data:
