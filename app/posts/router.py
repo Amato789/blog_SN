@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from typing import Optional
-from app.exceptions import CommentNotFoundException, PostNotFoundException
+from app.exceptions import CommentNotFoundException, PostNotFoundException, NoDataToUpdateException
 from app.posts.dao import PostDAO, CommentDAO
-from app.posts.schemas import PostSchema, NewPostSchema, CommentSchema, NewCommentSchema, CurrentCommentSchema
+from app.posts.schemas import PostSchema, NewPostSchema, CommentSchema, NewCommentSchema, CurrentCommentSchema, UpdatePostSchema, UpdateCommentSchema
 from app.users.dependencies import get_current_user
 from app.users.models import Users
 from app.tasks.tasks import post_to_moderate
@@ -49,6 +49,29 @@ async def add_post(
         model_id=added_post,
         string_to_check=f"Post title: {post.title}\nPost text: {post.text}"
     )
+
+
+@router.put("/{post_id}")
+async def update_post(
+        post_id: int,
+        post_data: UpdatePostSchema,
+        user: Users = Depends(get_current_user)
+) -> None:
+    existing_post = await PostDAO.find_one_or_none(id=post_id, user_id=user.id)
+    if not existing_post:
+        raise PostNotFoundException
+
+    update_data = post_data.model_dump(exclude_unset=True)
+    if update_data:
+        await PostDAO.update(post_id=post_id, user_id=user.id, **update_data)
+    else:
+        raise NoDataToUpdateException
+
+    if post_data.title or post_data.text:
+        post_to_moderate.delay(
+            model_id=post_id,
+            string_to_check=f"Post title: {post_data.title}\nPost text: {post_data.text}"
+        )
 
 
 @router.delete("/{post_id}")
@@ -99,6 +122,26 @@ async def add_comment(
             args=[post_id, added_comment, comment.text],
             countdown=post.autoresponder_delay
         )
+
+
+@router.put("/{post_id}/comments/{comment_id}")
+async def update_comment(
+        comment_id: int,
+        comment_data: UpdateCommentSchema,
+        user: Users = Depends(get_current_user)
+) -> None:
+    existing_comment = await CommentDAO.find_one_or_none(id=comment_id, user_id=user.id)
+    if not existing_comment:
+        raise CommentNotFoundException
+
+    update_data = comment_data.model_dump(exclude_unset=True)
+    if update_data:
+        await CommentDAO.update(comment_id=comment_id, user_id=user.id, **update_data)
+    else:
+        raise NoDataToUpdateException
+
+    if comment_data.text:
+        comment_to_moderate.delay(model_id=comment_id, string_to_check=comment_data.text)
 
 
 @router.delete("/{post_id}/comments/{comment_id}")

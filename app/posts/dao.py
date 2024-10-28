@@ -2,7 +2,7 @@ from app.dao.base import BaseDAO
 from app.posts.models import Posts, Comments  # noqa
 from app.users.models import Users  # noqa
 from app.database import async_session_maker, async_session_maker_nullpool
-from sqlalchemy import and_, delete, func, insert, select, case
+from sqlalchemy import and_, delete, func, insert, select, case, update
 from datetime import date
 from sqlalchemy.orm import selectinload
 from typing import Dict, Set
@@ -41,6 +41,17 @@ class PostDAO(BaseDAO):
             result = await session.execute(query)
             return result.mappings().all()
 
+    @classmethod
+    async def update(cls, post_id: int, user_id: int, **kwargs) -> None:
+        async with async_session_maker() as session:
+            query = (
+                update(Posts)
+                .where(Posts.id == post_id, Posts.user_id == user_id)
+                .values(**kwargs)
+            )
+            await session.execute(query)
+            await session.commit()
+
 
 class CommentDAO(BaseDAO):
     model = Comments
@@ -66,6 +77,17 @@ class CommentDAO(BaseDAO):
             await session.commit()
             inserted_id = result.scalar()
             return inserted_id
+
+    @classmethod
+    async def update(cls, comment_id: int, user_id: int, **kwargs) -> None:
+        async with async_session_maker() as session:
+            query = (
+                update(Comments)
+                .where(Comments.id == comment_id, Comments.user_id == user_id)
+                .values(**kwargs)
+            )
+            await session.execute(query)
+            await session.commit()
 
     @classmethod
     async def find_comments_with_replies(cls, post_id: int):

@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import date
 from typing import Optional, List
 
@@ -23,6 +23,14 @@ class NewPostSchema(BaseModel):
     autoresponder_delay: int
     is_blocked: bool
     is_checked: bool
+
+
+class UpdatePostSchema(BaseModel):
+    title: Optional[str] = Field(None)
+    text: Optional[str]
+    autoresponder_enabled: Optional[bool]
+    autoresponder_delay: Optional[int]
+
 
 
 class CommentSchema(BaseModel):
@@ -55,3 +63,7 @@ class CurrentCommentSchema(BaseModel):
     is_blocked: bool
     is_checked: bool
     parent_id: Optional[int] = None
+
+
+class UpdateCommentSchema(BaseModel):
+    text: Optional[str]

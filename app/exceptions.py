@@ -52,3 +52,7 @@ class ModerateByOpenAIError(BlogException):
     status_code = status.HTTP_408_REQUEST_TIMEOUT
     detail = "Failed to moderate the string"
 
+
+class NoDataToUpdateException(BlogException):
+    status_code = status.HTTP_409_CONFLICT
+    detail = "No data to update"

@@ -1,4 +1,4 @@
-<h1>API for Managing Posts and Comments with AI Moderation</h1>
+<h1>API for Managing Posts and Comments with Open AI Moderation</h1>
 <p align="left">
    <img src="https://img.shields.io/badge/Python-3.12.4-blue" alt="Python Version">
    <img src="https://img.shields.io/badge/FastAPI-0.115.2-yellow" alt="Beautiful Soup Version">
@@ -31,6 +31,11 @@ This project provides a simple API for managing posts and comments, with AI-base
 #### Automated Reply Functionality:
 - Automatic reply to comments with a user-defined delay. The response content is generated based on the post and the specific comment.
 
+#### Microservice Architecture Scheme
+![Microservice Architecture Scheme](blog_design_schema.png)
+
+
+
 
 ## Running with Docker ![Docker](https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
@@ -38,11 +43,10 @@ This project provides a simple API for managing posts and comments, with AI-base
 
    `git clone https://github.com/Amato789/blog_SN`
 
-2. Create an `.env` file and add your own data following the structure and path of the `.env_example` file.
+2. Create an `.env` file and add your own data following the structure and path of the `.env_example` file. Use the "About OpenAI API Key" section for help.
 3. Use `make app` to run application, database and all infrastructure.
 4. Use `make app-logs` to follow the logs in app container.
 5. Go to `http://0.0.0.0:8000/api/docs` link in your browser.
-
 
 
 ## Available commands:
@@ -59,3 +63,15 @@ This project provides a simple API for managing posts and comments, with AI-base
 `http://0.0.0.0:8000/api/docs` - application
 
 `http://0.0.0.0:5555` - flower
+
+## About OpenAI API Key
+Visit the website - https://platform.openai.com/docs/overview
+
+You need to create two projects: the first one is for moderating posts and comments with AI (free of charge), the second one is for creating a reply to a comment with AI (you will need to fund your account with 5 USD and allow the model "gpt-4o-mini " in the project settings)
+
+
+## Testing
+To run tests, use the following command:
+1. Use `make app` command to run application, database and all infrastructure.
+2. Use `make app-shell` command to go to app shell
+3. Use `pytest -v` command to run the tests
